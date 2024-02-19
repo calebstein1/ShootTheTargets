@@ -44,18 +44,11 @@ int main()
 
         if (rand() % TARGET_CHANCE == 0)
         {
-            struct Target_t *newTarget = malloc(sizeof(struct Target_t));
-            if (newTarget == NULL)
-            {
-                perror("malloc");
-                return -1;
-            }
-            newTarget->posX = rand() % WINDOW_WIDTH;
-            newTarget->posY = rand() % WINDOW_HEIGHT;
+            struct Target_t newTarget;
+            newTarget.posX = rand() % WINDOW_WIDTH;
+            newTarget.posY = rand() % WINDOW_HEIGHT;
             numOfTargets++;
-            targets = AddTarget(targets, newTarget, &numOfTargets);
-            free(newTarget);
-            newTarget = NULL;
+            targets = AddTarget(targets, &newTarget, &numOfTargets);
         }
 
         BeginDrawing();
