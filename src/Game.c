@@ -40,7 +40,7 @@ int main()
         if (MoveUp())
             playerPosY -= PLAYER_MOVEMENT_SPEED * delta;
         if (MoveDown())
-            playerPosY += PLAYER_MOVEMENT_SPEED* delta;
+            playerPosY += PLAYER_MOVEMENT_SPEED * delta;
 
         if (rand() % TARGET_CHANCE == 0)
         {
