@@ -6,7 +6,7 @@
 #include "InputHandler/InputHandler.h"
 
 #define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_HEIGHT 480
 #define TARGET_CHANCE 2000
 #define PLAYER_MOVEMENT_SPEED 200
 #define PLAYER_START_POS_X 320
@@ -54,6 +54,8 @@ int main()
             newTarget->posY = rand() % WINDOW_HEIGHT;
             numOfTargets++;
             targets = AddTarget(targets, newTarget, &numOfTargets);
+            free(newTarget);
+            newTarget = NULL;
         }
 
         BeginDrawing();
