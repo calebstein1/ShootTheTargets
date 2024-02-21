@@ -1,13 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <time.h>
 #include <raylib.h>
-#include "TargetsList.h"
+#include "Game.h"
 #include "InputHandler/InputHandler.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
 #define TARGET_CHANCE 2000
+#define MAX_TARGETS 8
 #define PLAYER_MOVEMENT_SPEED 200
 #define PLAYER_START_POS_X 320
 #define PLAYER_START_POS_Y 240
@@ -23,12 +25,12 @@ int main()
     Image targetImage = LoadImage("Resources/target.png");
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
-    float playerPosX, playerPosY, delta;
+    double playerPosX, playerPosY, delta;
     playerPosX = PLAYER_START_POS_X;
     playerPosY = PLAYER_START_POS_Y;
 
-    struct Target_t *targets = malloc(0);
-    int numOfTargets = 0;
+    Target_t targets[MAX_TARGETS];
+    int i = 0;
 
     while (!WindowShouldClose())
     {
@@ -44,25 +46,30 @@ int main()
 
         if (rand() % TARGET_CHANCE == 0)
         {
-            struct Target_t newTarget;
-            newTarget.posX = rand() % WINDOW_WIDTH;
-            newTarget.posY = rand() % WINDOW_HEIGHT;
-            numOfTargets++;
-            targets = AddTarget(targets, &newTarget, &numOfTargets);
+            for (i = 0; i < MAX_TARGETS; i++)
+            {
+                if (!targets[i].isActive)
+                {
+                    targets[i].isActive = true;
+                    targets[i].posX = rand() % WINDOW_WIDTH;
+                    targets[i].posY = rand() % WINDOW_HEIGHT;
+                    break;
+                }
+            }
         }
 
         BeginDrawing();
             ClearBackground(BLUE);
 
-            for (int i = 0; i < numOfTargets; i++)
+            for (i = 0; i < MAX_TARGETS; i++)
             {
-                DrawTexture(targetTexture, targets[i].posX, targets[i].posY, WHITE);
+                if (targets[i].isActive)
+                    DrawTexture(targetTexture, targets[i].posX, targets[i].posY, WHITE);
             }
             DrawTexture(playerTexture, playerPosX, playerPosY, WHITE);
         EndDrawing();
     }
 
-    free(targets);
     CloseWindow();
 
     return 0;
