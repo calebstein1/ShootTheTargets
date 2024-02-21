@@ -9,11 +9,12 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
 #define TARGET_SPAWN_CHANCE_FREQ 2
-#define TARGET_DESPAWN_SECONDS 6
-#define MAX_TARGETS 3
+#define TARGET_DESPAWN_SECONDS 7
+#define MAX_TARGETS 4
 #define PLAYER_MOVEMENT_SPEED 200
 #define PLAYER_START_POS_X 320
 #define PLAYER_START_POS_Y 240
+#define SHOOT_COOLDOWN_TIME 0.25
 
 int main()
 {
@@ -26,7 +27,8 @@ int main()
     Image targetImage = LoadImage("Resources/target.png");
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
-    double playerPosX, playerPosY, delta, gameTimer = 0, nextTargetSpawnChance = 0;
+    bool playerCanShoot = true;
+    double playerPosX, playerPosY, playerCooldownTimer = 0, delta, gameTimer = 0, nextTargetSpawnChance = 0;
     playerPosX = PLAYER_START_POS_X;
     playerPosY = PLAYER_START_POS_Y;
 
@@ -36,7 +38,10 @@ int main()
     while (!WindowShouldClose())
     {
         delta = GetFrameTime();
-        gameTimer += delta;
+        gameTimer = GetTime();
+
+        if (!playerCanShoot && playerCooldownTimer < gameTimer)
+            playerCanShoot = true;
 
         if (MoveLeft())
             playerPosX -= PLAYER_MOVEMENT_SPEED * delta;
@@ -46,6 +51,12 @@ int main()
             playerPosY -= PLAYER_MOVEMENT_SPEED * delta;
         if (MoveDown())
             playerPosY += PLAYER_MOVEMENT_SPEED * delta;
+        if (Shoot() && playerCanShoot)
+        {
+            playerCanShoot = false;
+            TraceLog(LOG_INFO, "Shot");
+            playerCooldownTimer = gameTimer + SHOOT_COOLDOWN_TIME;
+        }
 
         if (gameTimer > nextTargetSpawnChance && rand() % 2 == 0)
         {
@@ -57,7 +68,7 @@ int main()
                     targets[i].isActive = true;
                     targets[i].posX = rand() % WINDOW_WIDTH;
                     targets[i].posY = rand() % WINDOW_HEIGHT;
-                    targets[i].despawnAt = gameTimer + TARGET_DESPAWN_SECONDS;
+                    targets[i].despawnTime = gameTimer + TARGET_DESPAWN_SECONDS;
                     break;
                 }
             }
@@ -70,7 +81,7 @@ int main()
             {
                 if (targets[i].isActive)
                 {
-                    if (targets[i].despawnAt < gameTimer)
+                    if (targets[i].despawnTime < gameTimer)
                     {
                         targets[i].isActive = false;
                         continue;

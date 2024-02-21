@@ -34,3 +34,9 @@ bool MoveDown()
         return true;
     return false;
 }
+bool Shoot()
+{
+    if (IsKeyDown(KEY_SPACE))
+        return true;
+    return false;
+}

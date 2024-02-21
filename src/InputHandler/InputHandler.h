@@ -5,6 +5,6 @@ bool MoveLeft();
 bool MoveRight();
 bool MoveUp();
 bool MoveDown();
-bool Action();
+bool Shoot();
 
 #endif //INPUTHANDLER_H
