@@ -4,8 +4,8 @@
 typedef struct Target_t
 {
     bool isActive;
-    int posX;
-    int posY;
+    int posX, posY;
+    unsigned long despawnFrame;
 } Target_t;
 
 #endif //GAME_H

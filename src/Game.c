@@ -8,7 +8,8 @@
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
-#define TARGET_CHANCE 2000
+#define TARGET_SPAWN_FRAME_CHANCE 2
+#define TARGET_DESPAWN_RATE 6
 #define MAX_TARGETS 8
 #define PLAYER_MOVEMENT_SPEED 200
 #define PLAYER_START_POS_X 320
@@ -25,16 +26,20 @@ int main()
     Image targetImage = LoadImage("Resources/target.png");
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
-    double playerPosX, playerPosY, delta;
+    double playerPosX, playerPosY, delta, averageDelta;
     playerPosX = PLAYER_START_POS_X;
     playerPosY = PLAYER_START_POS_Y;
 
     Target_t targets[MAX_TARGETS];
+    unsigned long frameCounter = 0;
     int i = 0;
 
     while (!WindowShouldClose())
     {
         delta = GetFrameTime();
+        averageDelta = ((frameCounter * averageDelta) + delta) / (frameCounter + 1);
+        frameCounter++;
+
         if (MoveLeft())
             playerPosX -= PLAYER_MOVEMENT_SPEED * delta;
         if (MoveRight())
@@ -44,7 +49,7 @@ int main()
         if (MoveDown())
             playerPosY += PLAYER_MOVEMENT_SPEED * delta;
 
-        if (rand() % TARGET_CHANCE == 0)
+        if (frameCounter % (int)(TARGET_SPAWN_FRAME_CHANCE / averageDelta) == 0 && rand() % 2 == 0)
         {
             for (i = 0; i < MAX_TARGETS; i++)
             {
@@ -53,6 +58,7 @@ int main()
                     targets[i].isActive = true;
                     targets[i].posX = rand() % WINDOW_WIDTH;
                     targets[i].posY = rand() % WINDOW_HEIGHT;
+                    targets[i].despawnFrame = frameCounter + (TARGET_DESPAWN_RATE / averageDelta);
                     break;
                 }
             }
@@ -64,7 +70,14 @@ int main()
             for (i = 0; i < MAX_TARGETS; i++)
             {
                 if (targets[i].isActive)
+                {
+                    if (targets[i].despawnFrame < frameCounter)
+                    {
+                        targets[i].isActive = false;
+                        continue;
+                    }
                     DrawTexture(targetTexture, targets[i].posX, targets[i].posY, WHITE);
+                }
             }
             DrawTexture(playerTexture, playerPosX, playerPosY, WHITE);
         EndDrawing();
