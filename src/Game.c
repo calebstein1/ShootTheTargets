@@ -6,18 +6,21 @@
 #include "Game.h"
 #include "InputHandler/InputHandler.h"
 
+#define FRAMERATE 60
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
-#define TARGET_SPAWN_CHANCE_FREQ 2
-#define TARGET_DESPAWN_SECONDS 7
+#define TARGET_SPAWN_CHANCE_FREQ FRAMERATE * 2
+#define TARGET_DESPAWN_TIMER FRAMERATE * 7
 #define MAX_TARGETS 4
-#define PLAYER_MOVEMENT_SPEED 200
+#define PLAYER_MOVEMENT_SPEED 3
 #define PLAYER_START_POS_X 320
 #define PLAYER_START_POS_Y 240
-#define SHOOT_COOLDOWN_TIME 0.25
+#define SHOOT_COOLDOWN_TIMER FRAMERATE / 4
 
 int main()
 {
+    SetTargetFPS(FRAMERATE);
+
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Shoot The Targets");
 
@@ -28,37 +31,34 @@ int main()
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
     bool playerCanShoot = true;
-    double playerPosX, playerPosY, playerCooldownTimer = 0, delta, gameTimer = 0, nextTargetSpawnChance = 0;
-    playerPosX = PLAYER_START_POS_X;
-    playerPosY = PLAYER_START_POS_Y;
+    int i = 0, playerPosX = PLAYER_START_POS_X, playerPosY = PLAYER_START_POS_Y, nextTargetSpawnChance = 0;
+    unsigned long frameCounter = 0, playerCooldownTimer;
 
     Target_t targets[MAX_TARGETS];
-    int i = 0;
 
     while (!WindowShouldClose())
     {
-        delta = GetFrameTime();
-        gameTimer = GetTime();
+        frameCounter++;
 
-        if (!playerCanShoot && playerCooldownTimer < gameTimer)
+        if (frameCounter > playerCooldownTimer && !playerCanShoot)
             playerCanShoot = true;
 
         if (MoveLeft())
-            playerPosX -= PLAYER_MOVEMENT_SPEED * delta;
+            playerPosX -= PLAYER_MOVEMENT_SPEED;
         if (MoveRight())
-            playerPosX += PLAYER_MOVEMENT_SPEED * delta;
+            playerPosX += PLAYER_MOVEMENT_SPEED;
         if (MoveUp())
-            playerPosY -= PLAYER_MOVEMENT_SPEED * delta;
+            playerPosY -= PLAYER_MOVEMENT_SPEED;
         if (MoveDown())
-            playerPosY += PLAYER_MOVEMENT_SPEED * delta;
+            playerPosY += PLAYER_MOVEMENT_SPEED;
         if (Shoot() && playerCanShoot)
         {
             playerCanShoot = false;
             TraceLog(LOG_INFO, "Shot");
-            playerCooldownTimer = gameTimer + SHOOT_COOLDOWN_TIME;
+            playerCooldownTimer = frameCounter + SHOOT_COOLDOWN_TIMER;
         }
 
-        if (gameTimer > nextTargetSpawnChance && rand() % 2 == 0)
+        if (frameCounter > nextTargetSpawnChance && rand() % 2 == 0)
         {
             nextTargetSpawnChance += TARGET_SPAWN_CHANCE_FREQ;
             for (i = 0; i < MAX_TARGETS; i++)
@@ -68,7 +68,7 @@ int main()
                     targets[i].isActive = true;
                     targets[i].posX = rand() % WINDOW_WIDTH;
                     targets[i].posY = rand() % WINDOW_HEIGHT;
-                    targets[i].despawnTime = gameTimer + TARGET_DESPAWN_SECONDS;
+                    targets[i].despawnTime = frameCounter + TARGET_DESPAWN_TIMER;
                     break;
                 }
             }
@@ -81,7 +81,7 @@ int main()
             {
                 if (targets[i].isActive)
                 {
-                    if (targets[i].despawnTime < gameTimer)
+                    if (frameCounter > targets[i].despawnTime)
                     {
                         targets[i].isActive = false;
                         continue;
