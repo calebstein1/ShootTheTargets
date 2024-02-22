@@ -37,7 +37,7 @@ int main()
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
     bool playerCanShoot = true;
-    int i = 0, playerPosX = PLAYER_START_POS_X, playerPosY = PLAYER_START_POS_Y, nextTargetSpawnChance = 0;
+    int i = 0, score = 0, playerPosX = PLAYER_START_POS_X, playerPosY = PLAYER_START_POS_Y, nextTargetSpawnChance = 0;
     unsigned long frameCounter = 0, playerCooldownTimer;
 
     Target_t targets[MAX_TARGETS];
@@ -60,7 +60,18 @@ int main()
         if (Shoot() && playerCanShoot)
         {
             playerCanShoot = false;
-            TraceLog(LOG_INFO, "Shot");
+            for (i = 0; i < MAX_TARGETS; i++)
+            {
+                if (targets[i].isActive && targets[i].posX - 45 < playerPosX && targets[i].posX + 45 > playerPosX &&
+                    targets[i].posY - 45 < playerPosY && targets[i].posY + 45 > playerPosY)
+                {
+                    targets[i].isActive = false;
+                    score += 10;
+                    break;
+                }
+            }
+            if (i == MAX_TARGETS)
+                score--;
             playerCooldownTimer = frameCounter + SHOOT_COOLDOWN_TIMER;
         }
 
@@ -72,8 +83,8 @@ int main()
                 if (!targets[i].isActive)
                 {
                     targets[i].isActive = true;
-                    targets[i].posX = rand() % WINDOW_WIDTH;
-                    targets[i].posY = rand() % WINDOW_HEIGHT;
+                    targets[i].posX = rand() % (WINDOW_WIDTH - 45);
+                    targets[i].posY = rand() % (WINDOW_HEIGHT - 45);
                     targets[i].despawnTime = frameCounter + TARGET_DESPAWN_TIMER;
                     break;
                 }
@@ -81,7 +92,7 @@ int main()
         }
 
         BeginDrawing();
-            ClearBackground(BLUE);
+            ClearBackground(PURPLE);
 
             for (i = 0; i < MAX_TARGETS; i++)
             {
@@ -90,12 +101,14 @@ int main()
                     if (frameCounter > targets[i].despawnTime)
                     {
                         targets[i].isActive = false;
+                        score -= 3;
                         continue;
                     }
                     DrawTexture(targetTexture, targets[i].posX, targets[i].posY, WHITE);
                 }
             }
             DrawTexture(playerTexture, playerPosX, playerPosY, WHITE);
+            DrawText(TextFormat("Score: %d", score), 15, 15, 48, BLACK);
         EndDrawing();
     }
 
