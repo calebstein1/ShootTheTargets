@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <raylib.h>
 #include "Targets.h"
-#include "Game.h"
 
 void CheckIfTargetShot(int maxTargets, Target_t* targets, int* playerPosX, int* playerPosY, int* score)
 {

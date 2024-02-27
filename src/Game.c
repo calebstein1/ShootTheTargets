@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <raylib.h>
-#include "Game.h"
 #include "InputHandler.h"
 #include "Targets.h"
 
