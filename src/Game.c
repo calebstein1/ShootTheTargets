@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include "Game.h"
 #include "InputHandler.h"
+#include "Targets.h"
 
 // MODIFY THESE
 #define FRAMERATE 60
@@ -53,53 +54,23 @@ int main()
         if (Shoot() && playerCanShoot)
         {
             playerCanShoot = false;
-            for (i = 0; i < MAX_TARGETS; i++)
-            {
-                if (targets[i].isActive && targets[i].posX - 45 < playerPosX && targets[i].posX + 45 > playerPosX &&
-                    targets[i].posY - 45 < playerPosY && targets[i].posY + 45 > playerPosY)
-                {
-                    targets[i].isActive = false;
-                    score += 10;
-                    break;
-                }
-            }
-            if (i == MAX_TARGETS)
-                score--;
+            CheckIfTargetShot(MAX_TARGETS, targets, &playerPosX, &playerPosY, &score);
             playerCooldownTimer = frameCounter + SHOOT_COOLDOWN_TIMER;
         }
 
         if (frameCounter > nextTargetSpawnChance && rand() % 2 == 0)
         {
             nextTargetSpawnChance += TARGET_SPAWN_CHANCE_FREQ;
-            for (i = 0; i < MAX_TARGETS; i++)
-            {
-                if (!targets[i].isActive)
-                {
-                    targets[i].isActive = true;
-                    targets[i].posX = rand() % (WINDOW_WIDTH - 45);
-                    targets[i].posY = rand() % (WINDOW_HEIGHT - 45);
-                    targets[i].despawnTime = frameCounter + TARGET_DESPAWN_TIMER;
-                    break;
-                }
-            }
+            int newTargetPosX = rand() % (WINDOW_WIDTH - 45);
+            int newTargetPosY = rand() % (WINDOW_HEIGHT - 45);
+            unsigned long newTargetDespawnTime = frameCounter + TARGET_DESPAWN_TIMER;
+            SpawnTargetIfSlotAvailable(MAX_TARGETS, targets, newTargetPosX, newTargetPosY, newTargetDespawnTime);
         }
 
         BeginDrawing();
             ClearBackground(PURPLE);
 
-            for (i = 0; i < MAX_TARGETS; i++)
-            {
-                if (targets[i].isActive)
-                {
-                    if (frameCounter > targets[i].despawnTime)
-                    {
-                        targets[i].isActive = false;
-                        score -= 3;
-                        continue;
-                    }
-                    DrawTexture(targetTexture, targets[i].posX, targets[i].posY, WHITE);
-                }
-            }
+            DrawTargets(&targetTexture, MAX_TARGETS, targets, &frameCounter, &score);
             DrawTexture(playerTexture, playerPosX, playerPosY, WHITE);
             DrawText(TextFormat("Score: %d", score), 15, 15, 48, BLACK);
         EndDrawing();
