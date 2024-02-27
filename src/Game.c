@@ -49,14 +49,7 @@ int main()
         if (frameCounter > playerCooldownTimer && !playerCanShoot)
             playerCanShoot = true;
 
-        if (MoveLeft())
-            playerPosX -= PLAYER_MOVEMENT_SPEED;
-        if (MoveRight())
-            playerPosX += PLAYER_MOVEMENT_SPEED;
-        if (MoveUp())
-            playerPosY -= PLAYER_MOVEMENT_SPEED;
-        if (MoveDown())
-            playerPosY += PLAYER_MOVEMENT_SPEED;
+        DoPlayerMovement(PLAYER_MOVEMENT_SPEED, &playerPosX, &playerPosY);
         if (Shoot() && playerCanShoot)
         {
             playerCanShoot = false;

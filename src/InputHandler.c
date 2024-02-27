@@ -40,3 +40,14 @@ bool Shoot()
         return true;
     return false;
 }
+void DoPlayerMovement(int playerSpeed, int* playerPosX, int* playerPosY)
+{
+    if (MoveLeft())
+        *playerPosX -= playerSpeed;
+    if (MoveRight())
+        *playerPosX += playerSpeed;
+    if (MoveUp())
+        *playerPosY -= playerSpeed;
+    if (MoveDown())
+        *playerPosY += playerSpeed;
+}
