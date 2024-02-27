@@ -46,7 +46,7 @@ int main()
     while (!WindowShouldClose())
     {
         frameCounter++;
-        if (frameCounter % 60 == 0 && !gameOver)
+        if (frameCounter % FRAMERATE == 0 && !gameOver)
         {
             gameDuration--;
         }
