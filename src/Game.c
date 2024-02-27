@@ -37,8 +37,8 @@ int main()
     Image targetImage = LoadImage("Resources/target.png");
     Texture2D targetTexture = LoadTextureFromImage(targetImage);
 
-    bool playerCanShoot = true;
-    int i = 0, score = 0, playerPosX = PLAYER_START_POS_X, playerPosY = PLAYER_START_POS_Y, nextTargetSpawnChance = 0;
+    bool playerCanShoot = true, gameOver = false;
+    int i = 0, gameDuration = 60, score = 0, playerPosX = PLAYER_START_POS_X, playerPosY = PLAYER_START_POS_Y, nextTargetSpawnChance = 0;
     unsigned long frameCounter = 0, playerCooldownTimer;
 
     Target_t targets[MAX_TARGETS];
@@ -46,19 +46,29 @@ int main()
     while (!WindowShouldClose())
     {
         frameCounter++;
+        if (frameCounter % 60 == 0 && !gameOver)
+        {
+            gameDuration--;
+        }
+        if (gameDuration == 0)
+        {
+            ClearAllTargets(MAX_TARGETS, targets);
+            gameOver = true;
+        }
 
         if (frameCounter > playerCooldownTimer && !playerCanShoot)
             playerCanShoot = true;
 
-        DoPlayerMovement(PLAYER_MOVEMENT_SPEED, &playerPosX, &playerPosY);
-        if (Shoot() && playerCanShoot)
+        if (!gameOver)
+            DoPlayerMovement(PLAYER_MOVEMENT_SPEED, &playerPosX, &playerPosY);
+        if (Shoot() && playerCanShoot && !gameOver)
         {
             playerCanShoot = false;
             CheckIfTargetShot(MAX_TARGETS, targets, &playerPosX, &playerPosY, &score);
             playerCooldownTimer = frameCounter + SHOOT_COOLDOWN_TIMER;
         }
 
-        if (frameCounter > nextTargetSpawnChance && rand() % 2 == 0)
+        if (frameCounter > nextTargetSpawnChance && rand() % 2 == 0 && !gameOver)
         {
             nextTargetSpawnChance += TARGET_SPAWN_CHANCE_FREQ;
             int newTargetPosX = rand() % (WINDOW_WIDTH - 45);
@@ -73,6 +83,7 @@ int main()
             DrawTargets(&targetTexture, MAX_TARGETS, targets, &frameCounter, &score);
             DrawTexture(playerTexture, playerPosX, playerPosY, WHITE);
             DrawText(TextFormat("Score: %d", score), 15, 15, 48, BLACK);
+            DrawText(TextFormat("%d", gameDuration), (WINDOW_WIDTH - 80), 15, 48, BLACK);
         EndDrawing();
     }
 

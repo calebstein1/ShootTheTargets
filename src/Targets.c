@@ -53,3 +53,13 @@ void DrawTargets(Texture* targetTexture, int maxTargets, Target_t* targets, unsi
         }
     }
 }
+
+void ClearAllTargets(int maxTargets, Target_t* targets)
+{
+    int i = 0;
+    for (i = 0; i < maxTargets; i++)
+    {
+        if (targets[i].isActive == true)
+            targets[i].isActive = false;
+    }
+}
