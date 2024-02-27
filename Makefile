@@ -1,9 +1,15 @@
-all:
-	cc src/Game.c src/InputHandler/InputHandler.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+TARGET = bin/ShootTheTargets
+SRC = $(wildcard src/*.c)
+OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
 
-run:
-	cc src/Game.c src/InputHandler/InputHandler.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-	./a.out
+default: $(TARGET)
 
 clean:
-	rm -f a.out
+	rm -f obj/*.o
+	rm -f bin/*
+
+$(TARGET): $(OBJ)
+	cc -o $@ $? -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+
+obj/%.o: src/%.c
+	cc -c $< -o $@ -Iinclude

@@ -4,7 +4,7 @@
 #include <time.h>
 #include <raylib.h>
 #include "Game.h"
-#include "InputHandler/InputHandler.h"
+#include "InputHandler.h"
 
 // MODIFY THESE
 #define FRAMERATE 60
