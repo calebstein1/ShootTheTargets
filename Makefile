@@ -1,10 +1,12 @@
 TARGET = bin/ShootTheTargets
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
+CFLAGS=-Iinclude
+LDFLAGS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-default: $(TARGET)
+all: $(TARGET)
 
-run: default
+run: all
 	bin/ShootTheTargets
 
 clean:
@@ -13,8 +15,8 @@ clean:
 
 $(TARGET): $(OBJ)
 	mkdir -p bin
-	cc -o $@ $? -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+	cc -o $@ $? $(LDFLAGS)
 
 obj/%.o: src/%.c
 	mkdir -p obj
-	cc -c $< -o $@ -Iinclude
+	cc -c $< -o $@ $(CFLAGS)
